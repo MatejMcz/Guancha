@@ -23,3 +23,9 @@ Guancha je náš týmový seminární projekt na téma počítačová plošinov�
 - vytvoření PixelArt prostředí, rozhrání, postavy,...
 
 - zprovoznění multiplayeru přes WebSockets
+
+
+## Trackovaní času
+#Matěj
+20.11. - 4hrs
+23.11. - 2hrs
