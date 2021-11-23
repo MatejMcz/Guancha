@@ -33,25 +33,33 @@ namespace WpfApp1
         int height, width;
         WriteableBitmap writeableBmp;
         HashSet<Key> pressed_keys = new HashSet<Key>();
-
-        Player player = new Entities.Player()
-        {
+        HashSet<Player> players = new HashSet<Player> {
+            new Player()
+            {
             Position = new int[] { 100, 100 },
             Facing = 0,
+            Size = 5,
             Controls = new Key[] { Key.Up, Key.Left, Key.Down, Key.Right },
-            Speed = 5
-        };
+            Speed = 5,
+            Color = new int[] {0,0,0}
+            },
 
+            new Player()
+            {
+            Position = new int[] { 100, 100 },
+            Facing = 0,
+            Size = 5,
+            Controls = new Key[] { Key.W, Key.A, Key.S, Key.D },
+            Speed = 5,
+            Color = new int[] {0,0,0}
+            }
+        };
 
         Entity enemy = new Entities.Entity()
         {
             Position = new int[] { 100, 100 },
             Facing = 0
         };
-
-        int size = 5;
-
-        int[] color = { 0, 0, 0 };
 
         Random random = new Random();
 
@@ -65,10 +73,6 @@ namespace WpfApp1
 
             CompositionTarget.Rendering += CompositionTarget_Rendering;
         }
-
-        bool l, r, u, d, w, a, s, pismenodoprava = false;
-        int fastness = 5;
-
 
         private void keyDown(object sender, KeyEventArgs e)
         {
@@ -98,31 +102,35 @@ namespace WpfApp1
         {
         }
 
-        int go = 0;
 
         private void CompositionTarget_Rendering(object sender, EventArgs e)
         {
-
-            player.Move(pressed_keys);
-
             writeableBmp.Clear();
-            
-            writeableBmp.FillEllipseCentered(player.Position[0], player.Position[1], size, size, Color.FromRgb(Convert.ToByte(color[0]), Convert.ToByte(color[1]), Convert.ToByte(color[2])));
-            writeableBmp.DrawEllipseCentered(player.Position[0], player.Position[1], size, size, Colors.Black);
+
+            foreach (var player in players)
+            {
+                player.Move(pressed_keys);
+
+                writeableBmp.FillEllipseCentered(player.Position[0], player.Position[1], player.Size, player.Size, Color.FromRgb(Convert.ToByte(player.Color[0]), Convert.ToByte(player.Color[1]), Convert.ToByte(player.Color[2])));
+                writeableBmp.DrawEllipseCentered(player.Position[0], player.Position[1], player.Size, player.Size, Colors.Black);
+
+                int entityDistance = Coords.DistanceOfPoints(new int[] { player.Position[0], player.Position[1] }, new int[] { enemy.Position[0], enemy.Position[1] });
+
+                if (entityDistance < 25 + player.Size)
+                {
+                    enemy.Position[0] = Convert.ToInt32(random.Next(600)) + 100;
+                    enemy.Position[1] = Convert.ToInt32(random.Next(250)) + 100;
+
+                    player.Size++;
+
+                    player.Color[0] = Convert.ToByte(random.Next(256));
+                    player.Color[1] = Convert.ToByte(random.Next(256));
+                    player.Color[2] = Convert.ToByte(random.Next(256));
+                }
+            }
+
 
             writeableBmp.FillEllipseCentered(enemy.Position[0], enemy.Position[1], 25, 25, Colors.Red);
-
-            int entityDistance = Coords.DistanceOfPoints(new int[] {player.Position[0], player.Position[1] }, new int[] { enemy.Position[0], enemy.Position[1] });
-
-            if (entityDistance < 25 + size)
-            {
-                enemy.Position[0] = Convert.ToInt32(random.Next(600))+100;
-                enemy.Position[1] = Convert.ToInt32(random.Next(250))+100;
-                size++;
-                color[0] = Convert.ToByte(random.Next(256));
-                color[1] = Convert.ToByte(random.Next(256));
-                color[2] = Convert.ToByte(random.Next(256));
-            }
         }
     }
 }
