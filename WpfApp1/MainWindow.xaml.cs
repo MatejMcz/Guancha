@@ -32,18 +32,16 @@ namespace WpfApp1
 
         int height, width;
         WriteableBitmap writeableBmp;
+        HashSet<Key> pressed_keys = new HashSet<Key>();
 
-        Entity player = new Entities.Entity()
+        Player player = new Entities.Player()
         {
             Position = new int[] { 100, 100 },
-            Facing = 0
+            Facing = 0,
+            Controls = new Key[] { Key.Up, Key.Left, Key.Down, Key.Right },
+            Speed = 5
         };
 
-        Entity player2 = new Entity()
-        {
-            Position = new int[] { 200, 200 },
-            Facing = 0
-        };
 
         Entity enemy = new Entities.Entity()
         {
@@ -70,72 +68,25 @@ namespace WpfApp1
 
         bool l, r, u, d, w, a, s, pismenodoprava = false;
         int fastness = 5;
-        
+
 
         private void keyDown(object sender, KeyEventArgs e)
         {
-            switch (e.Key)
-            {
-                case Key.Left: 
-                    l = true;
-                    break;
-                case Key.Right: 
-                    r = true;
-                    break;
-                case Key.Up:
-                    u = true;
-                    break;
-                case Key.Down:
-                    d = true;
-                    break;
-                case Key.A:
-                    a = true;
-                    break;
-                case Key.D:
-                    pismenodoprava = true;
-                    break;
-                case Key.W:
-                    w = true;
-                    break;
-                case Key.S:
-                    s = true;
-                    break;
-                default: break;
-            }
+            pressed_keys.Add(e.Key);
         }
 
         private void keyUp(object sender, KeyEventArgs e)
         {
+            pressed_keys.Remove(e.Key);
             switch (e.Key)
             {
-                case Key.Left:
-                    l = false;
-                    break;
-                case Key.Right:
-                    r = false;
-                    break;
-                case Key.Up:
-                    u = false;
-                    break;
-                case Key.Down:
-                    d = false;
-                    break;
-                case Key.A:
-                    a = false;
-                    break;
-                case Key.D:
-                    pismenodoprava = false;
-                    break;
-                case Key.W:
-                    w = false;
-                    break;
-                case Key.S:
-                    s = false;
-                    break;
                 case Key.Space:
-                    int[] offset = WpfApp1.Utilities.Coords.RadToCart(90, 30);
-                    enemy.Position[0] += offset[0];
-                    enemy.Position[1] += offset[1];
+                    string br = "keys: ";
+                    foreach (var k in pressed_keys)
+                    {
+                        br += Convert.ToString(k);
+                    }
+                    MessageBox.Show(br);
                     break;
                 default: break;
             }
@@ -151,90 +102,13 @@ namespace WpfApp1
 
         private void CompositionTarget_Rendering(object sender, EventArgs e)
         {
-            if (l && u)
-            {
-                player.Position[0] -= Convert.ToInt32(Math.Sqrt((fastness * fastness)/2));
-                player.Position[1] -= Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-            }
-            else if (l && d)
-            {
-                player.Position[0] -= Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-                player.Position[1] += Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-            }
-            else if (r && u)
-            {
-                player.Position[0] += Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-                player.Position[1] -= Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-            }
-            else if (r && d)
-            {
-                player.Position[0] += Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-                player.Position[1] += Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-            }
-            else if (l)
-            {
-                player.Position[0] -= fastness;
-            }
-            else if (r)
-            {
-                player.Position[0] += fastness;
-            }
-            else if (d)
-            {
-                player.Position[1] += fastness;
-            }
-            else if (u)
-            {
-                player.Position[1] -= fastness;
-            }
 
-            if (a && w)
-            {
-                player2.Position[0] -= Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-                player2.Position[1] -= Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-            }
-            else if (a && s)
-            {
-                player2.Position[0] -= Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-                player2.Position[1] += Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-            }
-            else if (pismenodoprava && w)
-            {
-                player2.Position[0] += Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-                player2.Position[1] -= Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-            }
-            else if (pismenodoprava && s)
-            {
-                player2.Position[0] += Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-                player2.Position[1] += Convert.ToInt32(Math.Sqrt((fastness * fastness) / 2));
-            }
-            else if (a)
-            {
-                player2.Position[0] -= fastness;
-            }
-            else if (pismenodoprava)
-            {
-                player2.Position[0] += fastness;
-            }
-            else if (s)
-            {
-                player2.Position[1] += fastness;
-            }
-            else if (w)
-            {
-                player2.Position[1] -= fastness;
-            }
-
-
-
+            player.Move(pressed_keys);
 
             writeableBmp.Clear();
             
             writeableBmp.FillEllipseCentered(player.Position[0], player.Position[1], size, size, Color.FromRgb(Convert.ToByte(color[0]), Convert.ToByte(color[1]), Convert.ToByte(color[2])));
             writeableBmp.DrawEllipseCentered(player.Position[0], player.Position[1], size, size, Colors.Black);
-
-            writeableBmp.FillEllipseCentered(player2.Position[0], player2.Position[1], size, size, Color.FromRgb(Convert.ToByte(color[0]), Convert.ToByte(color[1]), Convert.ToByte(color[2])));
-            writeableBmp.DrawEllipseCentered(player2.Position[0], player2.Position[1], size, size, Colors.Black);
 
             writeableBmp.FillEllipseCentered(enemy.Position[0], enemy.Position[1], 25, 25, Colors.Red);
 
